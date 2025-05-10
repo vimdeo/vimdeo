@@ -1,0 +1,133 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #e5ddd5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .avatar-selection {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .avatars {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  
+  .avatar-selection .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: 0.3s;
+  }
+  
+  .avatar-selection .avatar:hover {
+    border-color: #007bff;
+  }
+  
+  .chat-container {
+    width: 80%;
+    max-width: 600px;
+    height: 90vh;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .message-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  
+  .message-input {
+    display: flex;
+    border-top: 1px solid #ccc;
+    padding: 10px;
+    background: #f0f0f0;
+  }
+  
+  .message-input input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+  }
+  
+  .message-input button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #128c7e;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  
+  .message {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .sender-message {
+    justify-content: flex-end;
+  }
+  
+  .receiver-message {
+    justify-content: flex-start;
+  }
+  
+  .message .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin: 0 10px;
+  }
+
+  .message-content {
+    display: flex;
+    align-items: center;
+    max-width: 75%;
+    flex-wrap: warp;
+    }
+  
+    .message span {
+        background: #fff;
+        padding: 10px 15px;
+        border-radius: 20px;
+        max-width: 100%;
+        word-wrap: break-word;
+        display: inline-block;
+        white-space: pre-wrap; /* Ensures word wrapping */
+    }
+  
+  .sender-message span {
+    background: #dcf8c6;
+  }
+
+  .receiver-message span {
+    background: #f1f0f0;
+  }
+  
+
+
+ 

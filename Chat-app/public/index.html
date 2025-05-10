@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Avatar selection screen -->
+  <div id="avatar-selection" class="avatar-selection">
+    <h2>Select your Avatar</h2>
+    <div class="avatars">
+      <img src="/images/avatar1.jpeg" alt="Avatar 1" class="avatar" data-avatar="avatar1.jpeg">
+      <img src="/images/avatar2.jpeg" alt="Avatar 2" class="avatar" data-avatar="avatar2.jpeg">
+      <img src="/images/avatar3.jpeg" alt="Avatar 3" class="avatar" data-avatar="avatar3.jpeg">
+      <img src="/images/avatar4.jpeg" alt="Avatar 4" class="avatar" data-avatar="avatar4.jpeg">
+      <img src="/images/avatar5.jpeg" alt="Avatar 5" class="avatar" data-avatar="avatar5.jpeg">
+    </div>
+  </div>
+
+  <!-- Chat container -->
+  <div class="chat-container" id="chat-container" style="display: none;">
+    <div class="message-container" id="messages"></div>
+    <div id="typing-indicator" style="display: none; font-style: italic; color: #888; padding: 5px 10px;"></div>
+    <div class="message-input">
+      <input type="text" id="input" placeholder="Type your message..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let username = '';
+    let avatar = '';
+    let lastSender = '';
+    const avatarSelectionDiv = document.getElementById('avatar-selection');
+    const avatars = document.querySelectorAll('.avatar');
+    const chatContainer = document.getElementById('chat-container');
+    const messagesContainer = document.getElementById('messages');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
+    const typingIndicator = document.getElementById('typing-indicator');
+
+    // Prompt for username
+    while (!username) {
+      username = prompt('Enter your name:');
+    }
+
+    // Handle avatar selection
+    avatars.forEach(img => {
+      img.addEventListener('click', () => {
+        avatar = img.getAttribute('data-avatar');
+        avatarSelectionDiv.style.display = 'none';
+        chatContainer.style.display = 'flex';
+        socket.emit('new user', username); // Emit event when user joins
+      });
+    });
+
+    // Typing event
+    input.addEventListener('input', () => {
+      socket.emit('typing', username);
+    });
+
+    input.addEventListener('blur', () => {
+      socket.emit('stop typing');
+    });
+
+    function sendMessage() {
+      const msg = input.value.trim();
+      if (msg) {
+        socket.emit('chat message', { username, msg, avatar });
+        socket.emit('stop typing');
+        input.value = '';
+      }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    let typingIndicatorTimeout;
+
+    socket.on('chat message', data => {
+      const isSender = data.username === username;
+      const senderClass = isSender ? 'sender-message' : 'receiver-message';
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message', senderClass);
+
+      const messageContent = document.createElement('div');
+      messageContent.classList.add('message-content');
+
+      const textElement = document.createElement('span');
+      textElement.textContent = isSender ? `${data.msg}` : `${data.username}: ${data.msg}`;
+
+      const showAvatar = lastSender !== data.username;
+
+      if (showAvatar) {
+        const avatarImg = document.createElement('img');
+        avatarImg.classList.add('avatar');
+        avatarImg.src = `/images/${data.avatar}`;
+        avatarImg.alt = `${data.username} Avatar`;
+
+        if (isSender) {
+          messageContent.appendChild(textElement);
+          messageContent.appendChild(avatarImg);
+        } else {
+          messageContent.appendChild(avatarImg);
+          messageContent.appendChild(textElement);
+        }
+      } else {
+        messageContent.appendChild(textElement);
+      }
+
+      messageElement.appendChild(messageContent);
+      messagesContainer.appendChild(messageElement);
+      lastSender = data.username;
+
+      messagesContainer.scrollTo({
+        top: messagesContainer.scrollHeight,
+        behavior: 'smooth'
+      });
+    });
+
+    // Show typing indicator
+    socket.on('typing', (otherUser) => {
+      if (otherUser !== username) {
+        typingIndicator.textContent = `${otherUser} is typing...`;
+        typingIndicator.style.display = 'block';
+
+        clearTimeout(typingIndicatorTimeout);
+        typingIndicatorTimeout = setTimeout(() => {
+          typingIndicator.style.display = 'none';
+        }, 3000);
+      }
+    });
+
+    // Hide typing indicator
+    socket.on('stop typing', () => {
+      typingIndicator.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
